@@ -81,6 +81,7 @@ namespace Fresh_Farm_Market.Pages
 			{
 				if (ModelState.IsValid)
 				{
+					// Check if email already exists
 					var existingUser = await _userManager.FindByEmailAsync(Input.Email);
 					if (existingUser != null)
 					{
@@ -88,6 +89,7 @@ namespace Fresh_Farm_Market.Pages
 						return Page();
 					}
 
+					// Create new user
 					var user = new User
 					{
 						UserName = Input.Email,
@@ -98,32 +100,39 @@ namespace Fresh_Farm_Market.Pages
 						MobileNo = Input.MobileNo,
 						DeliveryAddress = Input.DeliveryAddress,
 						AboutMe = Input.AboutMe,
-						EmailConfirmed = true
+						EmailConfirmed = true // Set to true if you don't need email confirmation
 					};
 
-					if (Input.Photo != null)
+					// Handle photo upload if provided
+					if (Input.Photo != null && Input.Photo.Length > 0)
 					{
 						var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-						Directory.CreateDirectory(uploadsFolder);
+						Directory.CreateDirectory(uploadsFolder); // Create directory if it doesn't exist
 
 						var uniqueFileName = Guid.NewGuid().ToString() + "_" + Input.Photo.FileName;
 						var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-						using (var stream = new FileStream(filePath, FileMode.Create))
+
+						using (var fileStream = new FileStream(filePath, FileMode.Create))
 						{
-							await Input.Photo.CopyToAsync(stream);
+							await Input.Photo.CopyToAsync(fileStream);
 						}
+
 						user.Photo = $"/uploads/{uniqueFileName}";
 					}
 
-					// This will properly hash the password and store it in PasswordHash
+					// Create the user with password
 					var result = await _userManager.CreateAsync(user, Input.Password);
 
 					if (result.Succeeded)
 					{
+						// Sign in the user immediately after registration
 						await _signInManager.SignInAsync(user, isPersistent: false);
+
+						// Redirect to home page
 						return RedirectToPage("/Index");
 					}
 
+					// If we got this far, something failed, redisplay form with errors
 					foreach (var error in result.Errors)
 					{
 						ModelState.AddModelError(string.Empty, error.Description);
@@ -132,10 +141,13 @@ namespace Fresh_Farm_Market.Pages
 			}
 			catch (Exception ex)
 			{
+				// Log the exception details
 				ModelState.AddModelError(string.Empty, "An error occurred during registration.");
 			}
 
+			// If we got this far, something failed, redisplay form
 			return Page();
 		}
+
 	}
 }

@@ -14,9 +14,6 @@ namespace Fresh_Farm_Market.Model
 		public string? MobileNo { get; set; }
 
 		public string? DeliveryAddress { get; set; }
-		public string Email { get; set; }
-
-		public string? Password { get; set; }
 
 		public string? Photo { get; set; }
 
