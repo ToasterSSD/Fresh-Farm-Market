@@ -13,11 +13,16 @@ namespace Fresh_Farm_Market.Pages
 	{
 		private readonly UserManager<User> _userManager;
 		private readonly SignInManager<User> _signInManager;
+		private readonly AuthDbContext _dbContext;
 
-		public RegisterModel(UserManager<User> userManager, SignInManager<User> signInManager)
+		public RegisterModel(
+			UserManager<User> userManager,
+			SignInManager<User> signInManager,
+			AuthDbContext dbContext)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
+			_dbContext = dbContext;
 		}
 
 		[BindProperty]
@@ -26,48 +31,36 @@ namespace Fresh_Farm_Market.Pages
 		public class InputModel
 		{
 			[Required]
-			[DataType(DataType.Text)]
-			public string FullName { get; set; }
-
-			[Required]
-			[DataType(DataType.CreditCard)]
-			public string CreditCardNo { get; set; }
-
-			[Required]
-			[DataType(DataType.Text)]
-			public string Gender { get; set; }
-
-			[Required]
-			[DataType(DataType.PhoneNumber)]
-			[RegularExpression(@"^\+?[1-9]\d{1,14}$", ErrorMessage = "Invalid mobile number.")]
-			public string MobileNo { get; set; }
-
-			[Required]
-			[DataType(DataType.MultilineText)]
-			public string DeliveryAddress { get; set; }
-
-			[Required]
-			[DataType(DataType.EmailAddress)]
-			[RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email address.")]
+			[EmailAddress]
 			public string Email { get; set; }
 
 			[Required]
 			[DataType(DataType.Password)]
-			[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{12,}$", ErrorMessage = "Password must contain at least 12 characters, one uppercase letter, one lowercase letter, one digit, and one special character.")]
 			public string Password { get; set; }
 
 			[Required]
 			[DataType(DataType.Password)]
-			[Compare(nameof(Password), ErrorMessage = "Password and confirmation password do not match.")]
+			[Compare("Password")]
 			public string ConfirmPassword { get; set; }
 
-			[DataType(DataType.Upload)]
-			[RegularExpression(@"^.*\.jpg$", ErrorMessage = "Only .jpg files are allowed.")]
-			public IFormFile Photo { get; set; }
+			[Required]
+			public string FullName { get; set; }
 
 			[Required]
-			[DataType(DataType.MultilineText)]
+			public string CreditCardNo { get; set; }
+
+			[Required]
+			public string Gender { get; set; }
+
+			[Required]
+			public string MobileNo { get; set; }
+
+			[Required]
+			public string DeliveryAddress { get; set; }
+
 			public string AboutMe { get; set; }
+
+			public IFormFile Photo { get; set; }
 		}
 
 		public void OnGet()
@@ -88,11 +81,18 @@ namespace Fresh_Farm_Market.Pages
 					MobileNo = Input.MobileNo,
 					DeliveryAddress = Input.DeliveryAddress,
 					AboutMe = Input.AboutMe
+					// Remove Password property assignment - let UserManager handle it
 				};
 
 				if (Input.Photo != null)
 				{
-					var filePath = Path.Combine("wwwroot/uploads", Input.Photo.FileName);
+					var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+					if (!Directory.Exists(uploadsFolder))
+					{
+						Directory.CreateDirectory(uploadsFolder);
+					}
+
+					var filePath = Path.Combine(uploadsFolder, Input.Photo.FileName);
 					using (var stream = new FileStream(filePath, FileMode.Create))
 					{
 						await Input.Photo.CopyToAsync(stream);
@@ -100,10 +100,20 @@ namespace Fresh_Farm_Market.Pages
 					user.Photo = $"/uploads/{Input.Photo.FileName}";
 				}
 
+				// UserManager.CreateAsync handles password hashing internally
 				var result = await _userManager.CreateAsync(user, Input.Password);
 
 				if (result.Succeeded)
 				{
+					var userActivity = new UserActivity
+					{
+						UserId = user.Id,
+						Activity = "User Registration",
+						Timestamp = DateTime.UtcNow
+					};
+					_dbContext.UserActivities.Add(userActivity);
+					await _dbContext.SaveChangesAsync();
+
 					await _signInManager.SignInAsync(user, isPersistent: false);
 					return RedirectToPage("Index");
 				}
@@ -116,5 +126,6 @@ namespace Fresh_Farm_Market.Pages
 
 			return Page();
 		}
+
 	}
 }

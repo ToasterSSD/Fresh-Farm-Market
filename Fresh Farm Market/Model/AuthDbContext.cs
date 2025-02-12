@@ -1,28 +1,27 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿// Fresh_Farm_Market/Model/AuthDbContext.cs
+using Fresh_Farm_Market.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
-namespace Fresh_Farm_Market.Model
+public class AuthDbContext : IdentityDbContext<User>
 {
-	public class AuthDbContext : IdentityDbContext<User>
+	private readonly IConfiguration _configuration;
+
+	public AuthDbContext(DbContextOptions<AuthDbContext> options, IConfiguration configuration)
+		: base(options)
 	{
-		private readonly IConfiguration _configuration;
+		_configuration = configuration;
+	}
 
-		public AuthDbContext(DbContextOptions<AuthDbContext> options, IConfiguration configuration)
-			: base(options)
+	public DbSet<User> Users { get; set; }
+	public DbSet<UserActivity> UserActivities { get; set; }  // Add this line
+
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	{
+		if (!optionsBuilder.IsConfigured)
 		{
-			_configuration = configuration;
+			string connectionString = _configuration.GetConnectionString("AuthConnectionString");
+			optionsBuilder.UseSqlServer(connectionString);
 		}
-
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-		{
-			if (!optionsBuilder.IsConfigured)
-			{
-				string connectionString = _configuration.GetConnectionString("AuthConnectionString");
-				optionsBuilder.UseSqlServer(connectionString);
-			}
-		}
-
-		public DbSet<User> Users { get; set; } // DbSet for User
 	}
 }
