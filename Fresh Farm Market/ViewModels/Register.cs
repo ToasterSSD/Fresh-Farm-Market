@@ -41,9 +41,8 @@ namespace Fresh_Farm_Market.ViewModels
 		[Compare(nameof(Password), ErrorMessage = "Password and confirmation password do not match.")]
 		public string ConfirmPassword { get; set; }
 
-		[Required]
 		[DataType(DataType.Upload)]
-		[RegularExpression(@"^.*\.(jpg|jpeg)$", ErrorMessage = "Only .jpg or .jpeg files are allowed.")]
+		[RegularExpression(@"^.*\.jpg$", ErrorMessage = "Only .jpg files are allowed.")]
 		public string Photo { get; set; }
 
 		[Required]
