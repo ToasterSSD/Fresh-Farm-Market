@@ -167,16 +167,13 @@
                 </div>
                 <input asp-for="Input.MobileNo" class="form-control"
                        placeholder="Enter mobile number"
-                       oninput="detectCountry(this)" />
+                       oninput="detectCountry(this)"
+                       onkeyup="detectCountry(this)" />
                 <i class="fas fa-phone input-icon"></i>
             </div>
             <small class="form-text text-muted country-name">Singapore</small>
             <span asp-validation-for="Input.MobileNo" class="text-danger"></span>
         </div>
-
-
-
-
 
         <div class="form-group">
             <label asp-for="Input.DeliveryAddress">Delivery Address</label>
@@ -316,9 +313,6 @@
             // Credit card formatting
             $('input[name="Input.CreditCardNo"]').mask('0000-0000-0000-0000');
 
-            // Phone number formatting
-            $('input[name="Input.MobileNo"]').mask('000-000-0000');
-
             // Custom form validation
             $("#registerForm").validate({
                 rules: {
@@ -354,8 +348,8 @@
             });
         });
 
-                // Phone number country detection
-        const phonePatterns = {
+
+                const phonePatterns = {
             'sg': {
                 pattern: /^(?:8|9)\d{7}$/,
                 code: '+65',
@@ -382,7 +376,7 @@
                 code: '+1',
                 country: 'United States',
                 format: /(\d{3})(\d{3})(\d{4})/,
-                replace: '($1) $2-$3'
+                replace: '$1 $2 $3'
             },
             'uk': {
                 pattern: /^(?:7)\d{9}$/,
@@ -399,7 +393,25 @@
             }
         };
 
+
+                // Add this to your Scripts section
         function detectCountry(input) {
+            // Get the key that was pressed (for backspace detection)
+            let key = event ? event.keyCode || event.which : null;
+
+            // If backspace is pressed and length is 1, clear the entire field
+            if (key === 8 && input.value.length === 1) {
+                input.value = '';
+                const countryCodeElement = input.closest('.input-group').querySelector('.country-code');
+                const countryNameElement = input.closest('.form-group').querySelector('.country-name');
+
+                // Reset country code and name
+                countryCodeElement.textContent = '+65';
+                countryNameElement.textContent = 'Singapore';
+                countryCodeElement.classList.remove('valid-country', 'invalid-country');
+                return;
+            }
+
             // Remove all non-digit characters
             let cleanNumber = input.value.replace(/\D/g, '');
 
@@ -417,7 +429,7 @@
             countryNameElement.textContent = matchedCountry.country;
 
             // Format number
-            if (matchedCountry.format) {
+            if (matchedCountry.format && cleanNumber.length > 0) {
                 input.value = cleanNumber.replace(matchedCountry.format, matchedCountry.replace);
             }
 
@@ -434,6 +446,7 @@
                 countryCodeElement.classList.remove('valid-country', 'invalid-country');
             }
         }
+
 
 
     </script>
