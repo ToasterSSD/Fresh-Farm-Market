@@ -91,6 +91,39 @@
         max-width: 200px;
         margin-top: 10px;
     }
+
+    .input-group-text.country-code {
+        min-width: 60px;
+        justify-content: center;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .country-name {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .valid-country {
+        background-color: #28a745;
+        color: white;
+        border-color: #28a745;
+    }
+
+    .invalid-country {
+        background-color: #dc3545;
+        color: white;
+        border-color: #dc3545;
+    }
+
+    .input-group .form-control {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+
 </style>
 
 <div class="form-container">
@@ -129,11 +162,21 @@
         <div class="form-group">
             <label asp-for="Input.MobileNo">Mobile Number</label>
             <div class="input-group">
-                <input asp-for="Input.MobileNo" class="form-control" placeholder="Enter mobile number" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text country-code">+65</span>
+                </div>
+                <input asp-for="Input.MobileNo" class="form-control"
+                       placeholder="Enter mobile number"
+                       oninput="detectCountry(this)" />
                 <i class="fas fa-phone input-icon"></i>
             </div>
+            <small class="form-text text-muted country-name">Singapore</small>
             <span asp-validation-for="Input.MobileNo" class="text-danger"></span>
         </div>
+
+
+
+
 
         <div class="form-group">
             <label asp-for="Input.DeliveryAddress">Delivery Address</label>
@@ -310,5 +353,88 @@
                 }
             });
         });
+
+                // Phone number country detection
+        const phonePatterns = {
+            'sg': {
+                pattern: /^(?:8|9)\d{7}$/,
+                code: '+65',
+                country: 'Singapore',
+                format: /(\d{4})(\d{4})/,
+                replace: '$1 $2'
+            },
+            'my': {
+                pattern: /^(?:1)[0-46-9]\d{7,8}$/,
+                code: '+60',
+                country: 'Malaysia',
+                format: /(\d{3})(\d{3,4})(\d{4})/,
+                replace: '$1 $2 $3'
+            },
+            'cn': {
+                pattern: /^(?:1)[3-9]\d{9}$/,
+                code: '+86',
+                country: 'China',
+                format: /(\d{3})(\d{4})(\d{4})/,
+                replace: '$1 $2 $3'
+            },
+            'us': {
+                pattern: /^(?:[2-9])\d{9}$/,
+                code: '+1',
+                country: 'United States',
+                format: /(\d{3})(\d{3})(\d{4})/,
+                replace: '($1) $2-$3'
+            },
+            'uk': {
+                pattern: /^(?:7)\d{9}$/,
+                code: '+44',
+                country: 'United Kingdom',
+                format: /(\d{3})(\d{3})(\d{4})/,
+                replace: '$1 $2 $3'
+            },
+            'default': {
+                code: '+',
+                country: 'International',
+                format: /(\d{1,3})(\d{3})(\d{4})/,
+                replace: '$1 $2 $3'
+            }
+        };
+
+        function detectCountry(input) {
+            // Remove all non-digit characters
+            let cleanNumber = input.value.replace(/\D/g, '');
+
+            // Get UI elements
+            const countryCodeElement = input.closest('.input-group').querySelector('.country-code');
+            const countryNameElement = input.closest('.form-group').querySelector('.country-name');
+
+            // Find matching country pattern
+            let matchedCountry = Object.values(phonePatterns).find(country =>
+                country.pattern && country.pattern.test(cleanNumber)
+            ) || phonePatterns.default;
+
+            // Update UI
+            countryCodeElement.textContent = matchedCountry.code;
+            countryNameElement.textContent = matchedCountry.country;
+
+            // Format number
+            if (matchedCountry.format) {
+                input.value = cleanNumber.replace(matchedCountry.format, matchedCountry.replace);
+            }
+
+            // Add styling based on validity
+            if (cleanNumber.length > 0) {
+                if (matchedCountry !== phonePatterns.default) {
+                    countryCodeElement.classList.add('valid-country');
+                    countryCodeElement.classList.remove('invalid-country');
+                } else {
+                    countryCodeElement.classList.add('invalid-country');
+                    countryCodeElement.classList.remove('valid-country');
+                }
+            } else {
+                countryCodeElement.classList.remove('valid-country', 'invalid-country');
+            }
+        }
+
+
     </script>
 }
