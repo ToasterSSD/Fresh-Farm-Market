@@ -17,6 +17,7 @@
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
+
     .form-group {
         margin-bottom: 1.5rem;
         position: relative;
@@ -130,6 +131,7 @@
     <h2 class="text-center mb-4">Register</h2>
 
     <form method="post" enctype="multipart/form-data" id="registerForm">
+        @Html.AntiForgeryToken()
         <div class="form-group">
             <label asp-for="Input.FullName">Full Name</label>
             <div class="input-group">
@@ -234,6 +236,38 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script>
+
+         $(document).ready(function () {
+            $("#registerForm").validate({
+                rules: {
+                    "Input.Email": {
+                        required: true,
+                        email: true,
+                        remote: {
+                            url: "?handler=CheckEmail",
+                            type: "get",
+                            data: {
+                                email: function() {
+                                    return $("#Input_Email").val();
+                                }
+                            },
+                            headers: {
+                                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                            }
+                        }
+                    }
+                },
+                messages: {
+                    "Input.Email": {
+                        required: "Email is required",
+                        email: "Please enter a valid email address",
+                        remote: "This email is already registered"
+                    }
+                }
+            });
+        });
+
+
         // Password visibility toggle
         function togglePassword(icon) {
             const input = icon.previousElementSibling;

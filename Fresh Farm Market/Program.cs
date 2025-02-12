@@ -6,9 +6,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<AuthDbContext>();
-builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-	.AddEntityFrameworkStores<AuthDbContext>()
-	.AddDefaultTokenProviders();
+
+// Updated Identity configuration
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+	options.SignIn.RequireConfirmedAccount = true;
+	options.User.RequireUniqueEmail = true;  // Enable unique email requirement
+
+	// Optional: Add additional password requirements
+	options.Password.RequireDigit = true;
+	options.Password.RequiredLength = 8;
+	options.Password.RequireLowercase = true;
+	options.Password.RequireUppercase = true;
+	options.Password.RequireNonAlphanumeric = true;
+})
+.AddEntityFrameworkStores<AuthDbContext>()
+.AddDefaultTokenProviders();
 
 var app = builder.Build();
 

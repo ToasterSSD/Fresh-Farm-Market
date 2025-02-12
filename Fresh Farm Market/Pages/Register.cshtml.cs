@@ -63,69 +63,79 @@ namespace Fresh_Farm_Market.Pages
 			public IFormFile Photo { get; set; }
 		}
 
+		public async Task<JsonResult> OnGetCheckEmailAsync(string email)
+		{
+			var user = await _userManager.FindByEmailAsync(email);
+			return new JsonResult(user == null);
+		}
+
 		public void OnGet()
 		{
 		}
 
+
+
 		public async Task<IActionResult> OnPostAsync()
 		{
-			if (ModelState.IsValid)
+			try
 			{
-				var user = new User
+				if (ModelState.IsValid)
 				{
-					UserName = Input.Email,
-					Email = Input.Email,
-					FullName = Input.FullName,
-					CreditCardNo = Input.CreditCardNo,
-					Gender = Input.Gender,
-					MobileNo = Input.MobileNo,
-					DeliveryAddress = Input.DeliveryAddress,
-					AboutMe = Input.AboutMe
-					// Remove Password property assignment - let UserManager handle it
-				};
-
-				if (Input.Photo != null)
-				{
-					var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-					if (!Directory.Exists(uploadsFolder))
+					var existingUser = await _userManager.FindByEmailAsync(Input.Email);
+					if (existingUser != null)
 					{
-						Directory.CreateDirectory(uploadsFolder);
+						ModelState.AddModelError("Input.Email", "This email is already registered.");
+						return Page();
 					}
 
-					var filePath = Path.Combine(uploadsFolder, Input.Photo.FileName);
-					using (var stream = new FileStream(filePath, FileMode.Create))
+					var user = new User
 					{
-						await Input.Photo.CopyToAsync(stream);
-					}
-					user.Photo = $"/uploads/{Input.Photo.FileName}";
-				}
-
-				// UserManager.CreateAsync handles password hashing internally
-				var result = await _userManager.CreateAsync(user, Input.Password);
-
-				if (result.Succeeded)
-				{
-					var userActivity = new UserActivity
-					{
-						UserId = user.Id,
-						Activity = "User Registration",
-						Timestamp = DateTime.UtcNow
+						UserName = Input.Email,
+						Email = Input.Email,
+						FullName = Input.FullName,
+						CreditCardNo = Input.CreditCardNo,
+						Gender = Input.Gender,
+						MobileNo = Input.MobileNo,
+						DeliveryAddress = Input.DeliveryAddress,
+						AboutMe = Input.AboutMe,
+						EmailConfirmed = true
 					};
-					_dbContext.UserActivities.Add(userActivity);
-					await _dbContext.SaveChangesAsync();
 
-					await _signInManager.SignInAsync(user, isPersistent: false);
-					return RedirectToPage("Index");
-				}
+					if (Input.Photo != null)
+					{
+						var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+						Directory.CreateDirectory(uploadsFolder);
 
-				foreach (var error in result.Errors)
-				{
-					ModelState.AddModelError(string.Empty, error.Description);
+						var uniqueFileName = Guid.NewGuid().ToString() + "_" + Input.Photo.FileName;
+						var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+						using (var stream = new FileStream(filePath, FileMode.Create))
+						{
+							await Input.Photo.CopyToAsync(stream);
+						}
+						user.Photo = $"/uploads/{uniqueFileName}";
+					}
+
+					// This will properly hash the password and store it in PasswordHash
+					var result = await _userManager.CreateAsync(user, Input.Password);
+
+					if (result.Succeeded)
+					{
+						await _signInManager.SignInAsync(user, isPersistent: false);
+						return RedirectToPage("/Index");
+					}
+
+					foreach (var error in result.Errors)
+					{
+						ModelState.AddModelError(string.Empty, error.Description);
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError(string.Empty, "An error occurred during registration.");
 			}
 
 			return Page();
 		}
-
 	}
 }
