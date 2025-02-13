@@ -18,7 +18,6 @@ namespace Fresh_Farm_Market.Pages
 		private readonly UserManager<User> _userManager;
 		private readonly SignInManager<User> _signInManager;
 		private readonly AuthDbContext _dbContext;
-		private readonly PasswordHelper _passwordHelper;
 		private readonly IDataProtector _protector;
 
 		public RegisterModel(
@@ -31,7 +30,6 @@ namespace Fresh_Farm_Market.Pages
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_dbContext = dbContext;
-			_passwordHelper = new PasswordHelper(configuration);
 			_protector = dataProtectionProvider.CreateProtector("FreshFarmMarket.Protector");
 		}
 
@@ -130,11 +128,8 @@ namespace Fresh_Farm_Market.Pages
 						user.Photo = $"/uploads/{uniqueFileName}";
 					}
 
-					// Hash the password with pepper
-					var hashedPassword = _passwordHelper.HashPassword(Input.Password);
-
-					// Create the user with hashed password
-					var result = await _userManager.CreateAsync(user, hashedPassword);
+					// Create the user with the provided password (UserManager handles password hashing)
+					var result = await _userManager.CreateAsync(user, Input.Password);
 
 					if (result.Succeeded)
 					{
@@ -142,7 +137,7 @@ namespace Fresh_Farm_Market.Pages
 						var passwordHistory = new PasswordHistory
 						{
 							UserId = user.Id,
-							HashedPassword = hashedPassword,
+							HashedPassword = user.PasswordHash,
 							DateSet = DateTime.UtcNow
 						};
 						_dbContext.PasswordHistories.Add(passwordHistory);
