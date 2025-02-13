@@ -58,8 +58,8 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseSession(); // Enable session
-app.UseMiddleware<SessionTimeoutMiddleware>(); // Register the middleware
+app.UseSession(); 
+app.UseMiddleware<SessionTimeoutMiddleware>();
 
 app.UseRouting();
 app.UseAuthentication();
