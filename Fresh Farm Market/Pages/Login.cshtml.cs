@@ -2,6 +2,7 @@ using Fresh_Farm_Market.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -13,16 +14,20 @@ namespace Fresh_Farm_Market.Pages
 		private readonly SignInManager<User> _signInManager;
 		private readonly UserManager<User> _userManager;
 		private readonly IAuditLogger _auditLogger;
+		private readonly IConfiguration _configuration;
 
-		public LoginModel(SignInManager<User> signInManager, UserManager<User> userManager, IAuditLogger auditLogger)
+		public LoginModel(SignInManager<User> signInManager, UserManager<User> userManager, IAuditLogger auditLogger, IConfiguration configuration)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_auditLogger = auditLogger;
+			_configuration = configuration;
 		}
 
 		[BindProperty]
 		public InputModel Input { get; set; }
+
+		public string ReCaptchaSiteKey { get; private set; }
 
 		public class InputModel
 		{
@@ -37,6 +42,7 @@ namespace Fresh_Farm_Market.Pages
 
 		public void OnGet()
 		{
+			ReCaptchaSiteKey = _configuration["ReCaptcha:SiteKey"];
 		}
 
 		public async Task<IActionResult> OnPostAsync()

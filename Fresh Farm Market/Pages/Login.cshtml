@@ -30,6 +30,10 @@
                     </div>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
+
+                <!-- Add the reCAPTCHA hidden input field here -->
+                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" />
+
                 <button type="submit" class="btn btn-primary btn-block">Login</button>
             </form>
         </div>
@@ -38,7 +42,14 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://www.google.com/recaptcha/api.js?render='@Model.ReCaptchaSiteKey'"></script>
     <script>
+        grecaptcha.ready(function() {
+            grecaptcha.execute('@Model.ReCaptchaSiteKey', { action: 'login' }).then(function(token) {
+                document.getElementById('g-recaptcha-response').value = token;
+            });
+        });
+
         function togglePasswordVisibility(element) {
             const input = element.closest('.input-group').querySelector('input');
             const icon = element.querySelector('i');

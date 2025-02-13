@@ -7,6 +7,7 @@ using Fresh_Farm_Market.Migrations;
 using Microsoft.AspNetCore.DataProtection;
 using Fresh_Farm_Market;
 using Serilog;
+using AspNetCore.ReCaptcha;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,9 @@ builder.Services.AddSession(options =>
 	options.Cookie.HttpOnly = true;
 	options.Cookie.IsEssential = true;
 });
+
+// Configure reCAPTCHA
+builder.Services.AddReCaptcha(builder.Configuration.GetSection("ReCaptcha"));
 
 var app = builder.Build();
 

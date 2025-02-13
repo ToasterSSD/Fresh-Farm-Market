@@ -144,7 +144,7 @@
 <div class="form-container">
     <h2 class="text-center mb-4">Register</h2>
 
-    <form method="post" enctype="multipart/form-data" id="registerForm">
+    <form method="post" enctype="multipart/form-data" id="registerForm" >
         @Html.AntiForgeryToken()
         <div class="form-group">
             <label asp-for="Input.FullName">Full Name</label>
@@ -242,6 +242,9 @@
             <span asp-validation-for="Input.AboutMe" class="text-danger"></span>
         </div>
 
+        <!-- Add the reCAPTCHA hidden input field here -->
+        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" />
+
         <button type="submit" class="btn btn-primary">Register</button>
     </form>
 </div>
@@ -249,7 +252,14 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render='@Model.ReCaptchaSiteKey'"></script>
     <script>
+         grecaptcha.ready(function() {
+            grecaptcha.execute('@Model.ReCaptchaSiteKey', { action: 'register' }).then(function(token) {
+                document.getElementById('g-recaptcha-response').value = token;
+            });
+        });
+
         $(document).ready(function () {
             $("#registerForm").validate({
                 rules: {

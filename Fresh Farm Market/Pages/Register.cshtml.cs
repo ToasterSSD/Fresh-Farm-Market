@@ -19,6 +19,7 @@ namespace Fresh_Farm_Market.Pages
 		private readonly SignInManager<User> _signInManager;
 		private readonly AuthDbContext _dbContext;
 		private readonly IDataProtector _protector;
+		private readonly IConfiguration _configuration;
 
 		public RegisterModel(
 			UserManager<User> userManager,
@@ -31,10 +32,13 @@ namespace Fresh_Farm_Market.Pages
 			_signInManager = signInManager;
 			_dbContext = dbContext;
 			_protector = dataProtectionProvider.CreateProtector("FreshFarmMarket.Protector");
+			_configuration = configuration;
 		}
 
 		[BindProperty]
 		public InputModel Input { get; set; }
+
+		public string ReCaptchaSiteKey { get; private set; }
 
 		public class InputModel
 		{
@@ -81,6 +85,7 @@ namespace Fresh_Farm_Market.Pages
 
 		public void OnGet()
 		{
+			ReCaptchaSiteKey = _configuration["ReCaptcha:SiteKey"];
 		}
 
 		public async Task<IActionResult> OnPostAsync()
@@ -168,3 +173,4 @@ namespace Fresh_Farm_Market.Pages
 		}
 	}
 }
+
