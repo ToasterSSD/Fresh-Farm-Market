@@ -1,4 +1,5 @@
 using Fresh_Farm_Market.Model;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +18,20 @@ namespace Fresh_Farm_Market.Pages
 		private readonly SignInManager<User> _signInManager;
 		private readonly AuthDbContext _dbContext;
 		private readonly PasswordHelper _passwordHelper;
+		private readonly IDataProtector _protector;
 
 		public RegisterModel(
 			UserManager<User> userManager,
 			SignInManager<User> signInManager,
 			AuthDbContext dbContext,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			IDataProtectionProvider dataProtectionProvider)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_dbContext = dbContext;
 			_passwordHelper = new PasswordHelper(configuration);
+			_protector = dataProtectionProvider.CreateProtector("FreshFarmMarket.Protector");
 		}
 
 		[BindProperty]
@@ -100,7 +104,7 @@ namespace Fresh_Farm_Market.Pages
 						UserName = WebUtility.HtmlEncode(Input.Email),
 						Email = WebUtility.HtmlEncode(Input.Email),
 						FullName = WebUtility.HtmlEncode(Input.FullName),
-						CreditCardNo = EncryptionHelper.Encrypt(WebUtility.HtmlEncode(Input.CreditCardNo)),
+						CreditCardNo = _protector.Protect(WebUtility.HtmlEncode(Input.CreditCardNo)),
 						Gender = WebUtility.HtmlEncode(Input.Gender),
 						MobileNo = WebUtility.HtmlEncode(Input.MobileNo),
 						DeliveryAddress = WebUtility.HtmlEncode(Input.DeliveryAddress),

@@ -4,12 +4,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Fresh_Farm_Market.Migrations;
+using Microsoft.AspNetCore.DataProtection;
+using Fresh_Farm_Market;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<AuthDbContext>();
+builder.Services.AddDataProtection(); // Add Data Protection
+
+
+builder.Services.AddScoped<DataProtectionService>();
+
 
 // Updated Identity configuration
 builder.Services.AddIdentity<User, IdentityRole>(options =>
