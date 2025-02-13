@@ -2,6 +2,7 @@ using Fresh_Farm_Market.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -50,6 +51,7 @@ namespace Fresh_Farm_Market.Pages
 					if (result.Succeeded)
 					{
 						await _auditLogger.LogAsync(user.Id, "User logged in");
+						Log.Information("User {UserId} logged in successfully.", user.Id);
 
 						// Create a secure session
 						HttpContext.Session.SetString("UserId", user.Id);
@@ -59,38 +61,19 @@ namespace Fresh_Farm_Market.Pages
 					}
 					else if (result.IsLockedOut)
 					{
-						// Check if the lockout period has expired
-						var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
-						if (lockoutEnd.HasValue && lockoutEnd.Value.UtcDateTime <= DateTime.UtcNow)
-						{
-							// Reset lockout count and unlock the user
-							await _userManager.SetLockoutEndDateAsync(user, null);
-							await _userManager.ResetAccessFailedCountAsync(user);
-
-							// Attempt to sign in again
-							result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, false, lockoutOnFailure: true);
-							if (result.Succeeded)
-							{
-								await _auditLogger.LogAsync(user.Id, "User logged in after lockout");
-
-								// Create a secure session
-								HttpContext.Session.SetString("UserId", user.Id);
-								HttpContext.Session.SetString("SecurityStamp", user.SecurityStamp);
-
-								return RedirectToPage("/Index");
-							}
-						}
-
+						Log.Warning("User {UserId} account locked out due to multiple failed login attempts.", user.Id);
 						ModelState.AddModelError(string.Empty, "Account locked out due to multiple failed login attempts. Please try again later.");
 						return Page();
 					}
 					else
 					{
+						Log.Warning("Invalid login attempt for user {UserId}.", user.Id);
 						ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 					}
 				}
 				else
 				{
+					Log.Warning("Invalid login attempt for email {Email}.", Input.Email);
 					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 				}
 			}

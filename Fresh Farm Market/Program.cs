@@ -6,8 +6,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Fresh_Farm_Market.Migrations;
 using Microsoft.AspNetCore.DataProtection;
 using Fresh_Farm_Market;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+	.WriteTo.Console()
+	.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+	.CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -51,19 +60,20 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Enforce HTTPS
+app.UseHttpsRedirection();
+app.UseHsts();
+
 if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Error");
 	app.UseStatusCodePagesWithReExecute("/errors/{0}");
-	app.UseHsts();
 }
 else
 {
 	app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession(); // Enable session
 app.UseMiddleware<SessionTimeoutMiddleware>();

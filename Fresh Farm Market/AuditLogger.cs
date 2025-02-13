@@ -1,4 +1,5 @@
 ﻿using Fresh_Farm_Market.Model;
+using Serilog;
 using System;
 using System.Threading.Tasks;
 
@@ -22,5 +23,7 @@ public class AuditLogger : IAuditLogger
 
 		_dbContext.UserActivities.Add(userActivity);
 		await _dbContext.SaveChangesAsync();
+
+		Log.Information("User {UserId} performed activity: {Activity}", userId, activity);
 	}
 }

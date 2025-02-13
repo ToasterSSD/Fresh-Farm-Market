@@ -2,6 +2,7 @@ using Fresh_Farm_Market.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Serilog;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ public class LogoutModel : PageModel
 		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 		await _signInManager.SignOutAsync();
 		await _auditLogger.LogAsync(userId, "User logged out");
+		Log.Information("User {UserId} logged out.", userId);
 
 		// Clear session
 		HttpContext.Session.Clear();
