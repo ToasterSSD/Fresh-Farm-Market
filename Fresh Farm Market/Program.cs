@@ -32,7 +32,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.Password.RequireNonAlphanumeric = true;
 
 	// Account lockout settings
-	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Set lockout time to 2 minutes
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1); // Set lockout time to 2 minutes
 	options.Lockout.MaxFailedAccessAttempts = 3; // Set max failed access attempts
 	options.Lockout.AllowedForNewUsers = true;
 })
@@ -67,7 +67,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession(); // Enable session
-app.UseMiddleware<SessionTimeoutMiddleware>(); // Register the middleware
+app.UseMiddleware<SessionTimeoutMiddleware>(); 
 
 app.UseRouting();
 app.UseAuthentication();
