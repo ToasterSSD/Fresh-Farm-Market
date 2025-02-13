@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Fresh_Farm_Market.Pages
@@ -93,21 +94,21 @@ namespace Fresh_Farm_Market.Pages
 						return Page();
 					}
 
-					// Create new user
+					// Create new user with HTML encoded inputs
 					var user = new User
 					{
-						UserName = Input.Email,
-						Email = Input.Email,
-						FullName = Input.FullName,
-						CreditCardNo = EncryptionHelper.Encrypt(Input.CreditCardNo),
-						Gender = Input.Gender,
-						MobileNo = Input.MobileNo,
-						DeliveryAddress = Input.DeliveryAddress,
-						AboutMe = Input.AboutMe,
-						EmailConfirmed = true 
+						UserName = WebUtility.HtmlEncode(Input.Email),
+						Email = WebUtility.HtmlEncode(Input.Email),
+						FullName = WebUtility.HtmlEncode(Input.FullName),
+						CreditCardNo = EncryptionHelper.Encrypt(WebUtility.HtmlEncode(Input.CreditCardNo)),
+						Gender = WebUtility.HtmlEncode(Input.Gender),
+						MobileNo = WebUtility.HtmlEncode(Input.MobileNo),
+						DeliveryAddress = WebUtility.HtmlEncode(Input.DeliveryAddress),
+						AboutMe = WebUtility.HtmlEncode(Input.AboutMe),
+						EmailConfirmed = true // Set to true if you don't need email confirmation
 					};
 
-					
+					// Handle photo upload if provided
 					if (Input.Photo != null && Input.Photo.Length > 0)
 					{
 						var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
@@ -148,11 +149,11 @@ namespace Fresh_Farm_Market.Pages
 			}
 			catch (Exception ex)
 			{
-				
+				// Log the exception details
 				ModelState.AddModelError(string.Empty, "An error occurred during registration.");
 			}
 
-			
+			// If we got this far, something failed, redisplay form
 			return Page();
 		}
 	}
