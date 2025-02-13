@@ -104,10 +104,10 @@ namespace Fresh_Farm_Market.Pages
 						MobileNo = Input.MobileNo,
 						DeliveryAddress = Input.DeliveryAddress,
 						AboutMe = Input.AboutMe,
-						EmailConfirmed = true // Set to true if you don't need email confirmation
+						EmailConfirmed = true 
 					};
 
-					// Handle photo upload if provided
+					
 					if (Input.Photo != null && Input.Photo.Length > 0)
 					{
 						var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
@@ -148,11 +148,11 @@ namespace Fresh_Farm_Market.Pages
 			}
 			catch (Exception ex)
 			{
-				// Log the exception details
+				
 				ModelState.AddModelError(string.Empty, "An error occurred during registration.");
 			}
 
-			// If we got this far, something failed, redisplay form
+			
 			return Page();
 		}
 	}
