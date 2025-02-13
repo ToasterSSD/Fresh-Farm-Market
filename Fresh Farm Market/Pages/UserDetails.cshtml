@@ -1,0 +1,21 @@
+﻿@page
+@model Fresh_Farm_Market.Pages.UserDetailsModel
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    <h2>@Model.UserViewModel.FullName</h2>
+    <p><strong>Email:</strong> @Model.UserViewModel.Email</p> <!-- Display Email -->
+    <p><strong>Credit Card Number:</strong> @Model.UserViewModel.CreditCardNo</p>
+    <p><strong>Gender:</strong> @Model.UserViewModel.Gender</p>
+    <p><strong>Mobile Number:</strong> @Model.UserViewModel.MobileNo</p>
+    <p><strong>Delivery Address:</strong> @Model.UserViewModel.DeliveryAddress</p>
+    <p><strong>About Me:</strong> @Model.UserViewModel.AboutMe</p>
+    @if (!string.IsNullOrEmpty(Model.UserViewModel.Photo))
+    {
+        <img src="@Model.UserViewModel.Photo" alt="Profile Photo" />
+    }
+</div>

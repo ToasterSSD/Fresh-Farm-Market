@@ -15,7 +15,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 	// Optional: Add additional password requirements
 	options.Password.RequireDigit = true;
-	options.Password.RequiredLength = 8;
+	options.Password.RequiredLength = 12;
 	options.Password.RequireLowercase = true;
 	options.Password.RequireUppercase = true;
 	options.Password.RequireNonAlphanumeric = true;

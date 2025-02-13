@@ -8,6 +8,23 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
+    .password-strength {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .password-strength.weak {
+        color: #dc3545;
+    }
+
+    .password-strength.medium {
+        color: #ffc107;
+    }
+
+    .password-strength.strong {
+        color: #28a745;
+    }
+
     .form-container {
         max-width: 600px;
         margin: 0 auto;
@@ -16,7 +33,6 @@
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
 
     .form-group {
         margin-bottom: 1.5rem;
@@ -65,10 +81,10 @@
         transition: border-color 0.3s ease;
     }
 
-        .form-control:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        }
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
 
     .validation-error {
         color: #dc3545;
@@ -123,8 +139,6 @@
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }
-
-
 </style>
 
 <div class="form-container">
@@ -192,14 +206,14 @@
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
 
-
         <div class="form-group password-container">
             <label asp-for="Input.Password">Password</label>
             <div class="input-group">
-                <input asp-for="Input.Password" class="form-control" type="password" placeholder="Enter password" />
+                <input asp-for="Input.Password" class="form-control" type="password" placeholder="Enter password" oninput="checkPasswordStrength(this)" />
                 <i class="far fa-eye toggle-password" onclick="togglePassword(this)"></i>
             </div>
             <span asp-validation-for="Input.Password" class="text-danger"></span>
+            <div id="passwordStrength" class="password-strength"></div> <!-- Password strength message -->
         </div>
 
         <div class="form-group password-container">
@@ -236,8 +250,7 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script>
-
-         $(document).ready(function () {
+        $(document).ready(function () {
             $("#registerForm").validate({
                 rules: {
                     "Input.Email": {
@@ -255,6 +268,11 @@
                                 RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
                             }
                         }
+                    },
+                    "Input.Password": {
+                        required: true,
+                        minlength: 12,
+                        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/
                     }
                 },
                 messages: {
@@ -262,11 +280,15 @@
                         required: "Email is required",
                         email: "Please enter a valid email address",
                         remote: "This email is already registered"
+                    },
+                    "Input.Password": {
+                        required: "Password is required",
+                        minlength: "Password must be at least 12 characters long",
+                        pattern: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
                     }
                 }
             });
         });
-
 
         // Password visibility toggle
         function togglePassword(icon) {
@@ -282,44 +304,41 @@
             }
         }
 
-            function updateEmailIcon(input) {
-                const iconElement = input.nextElementSibling;
-                const email = input.value.toLowerCase();
-    
-                // Reset icon to default state
-                iconElement.className = 'email-icon';
-    
-                // Define email providers and their icons
-                const emailProviders = {
-                    'gmail.com': { icon: 'fab fa-google', color: '#DB4437' },
-                    'outlook.com': { icon: 'fab fa-microsoft', color: '#00A4EF' },
-                    'hotmail.com': { icon: 'fab fa-microsoft', color: '#00A4EF' },
-                    'live.com': { icon: 'fab fa-microsoft', color: '#00A4EF' },
-                    'yahoo.com': { icon: 'fab fa-yahoo', color: '#720e9e' }
-                };
+        function updateEmailIcon(input) {
+            const iconElement = input.nextElementSibling;
+            const email = input.value.toLowerCase();
 
-                // Extract domain from email
-                const domain = email.split('@@')[1];
-    
-                if (domain) {
-                    for (const [providerDomain, config] of Object.entries(emailProviders)) {
-                        if (domain.includes(providerDomain)) {
-                            iconElement.className = `${config.icon} email-icon`;
-                            iconElement.style.color = config.color;
-                            return;
-                        }
+            // Reset icon to default state
+            iconElement.className = 'email-icon';
+
+            // Define email providers and their icons
+            const emailProviders = {
+                'gmail.com': { icon: 'fab fa-google', color: '#DB4437' },
+                'outlook.com': { icon: 'fab fa-microsoft', color: '#00A4EF' },
+                'hotmail.com': { icon: 'fab fa-microsoft', color: '#00A4EF' },
+                'live.com': { icon: 'fab fa-microsoft', color: '#00A4EF' },
+                'yahoo.com': { icon: 'fab fa-yahoo', color: '#720e9e' }
+            };
+
+            // Extract domain from email
+            const domain = email.split('@@')[1];
+
+            if (domain) {
+                for (const [providerDomain, config] of Object.entries(emailProviders)) {
+                    if (domain.includes(providerDomain)) {
+                        iconElement.className = `${config.icon} email-icon`;
+                        iconElement.style.color = config.color;
+                        return;
                     }
-                    
-                    iconElement.className = 'fas fa-envelope email-icon';
-                    iconElement.style.color = '#6c757d';
-                } else {
-                   
-                    iconElement.className = 'fas fa-envelope email-icon';
-                    iconElement.style.color = '#6c757d';
                 }
+
+                iconElement.className = 'fas fa-envelope email-icon';
+                iconElement.style.color = '#6c757d';
+            } else {
+                iconElement.className = 'fas fa-envelope email-icon';
+                iconElement.style.color = '#6c757d';
             }
-
-
+        }
 
         // Photo preview
         function previewPhoto(input) {
@@ -382,8 +401,7 @@
             });
         });
 
-
-                const phonePatterns = {
+        const phonePatterns = {
             'sg': {
                 pattern: /^(?:8|9)\d{7}$/,
                 code: '+65',
@@ -427,8 +445,7 @@
             }
         };
 
-
-                // Add this to your Scripts section
+        // Add this to your Scripts section
         function detectCountry(input) {
             // Get the key that was pressed (for backspace detection)
             let key = event ? event.keyCode || event.which : null;
@@ -481,7 +498,30 @@
             }
         }
 
+        function checkPasswordStrength(input) {
+            const strengthElement = document.getElementById('passwordStrength');
+            const password = input.value;
+            let strength = 'weak';
+            let message = 'Weak password';
 
+            if (password.length >= 12) {
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumbers = /\d/.test(password);
+                const hasSpecialChars = /[^a-zA-Z\d]/.test(password);
+
+                if (hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars) {
+                    strength = 'strong';
+                    message = 'Strong password';
+                } else if ((hasUpperCase && hasLowerCase) || (hasNumbers && hasSpecialChars)) {
+                    strength = 'medium';
+                    message = 'Medium strength password';
+                }
+            }
+
+            strengthElement.textContent = message;
+            strengthElement.className = `password-strength ${strength}`;
+        }
 
     </script>
 }

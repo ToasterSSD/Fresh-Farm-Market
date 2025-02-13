@@ -36,6 +36,8 @@ namespace Fresh_Farm_Market.Pages
 
 			[Required]
 			[DataType(DataType.Password)]
+			[MinLength(12, ErrorMessage = "Password must be at least 12 characters long")]
+			[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$", ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")]
 			public string Password { get; set; }
 
 			[Required]
@@ -95,7 +97,7 @@ namespace Fresh_Farm_Market.Pages
 						UserName = Input.Email,
 						Email = Input.Email,
 						FullName = Input.FullName,
-						CreditCardNo = Input.CreditCardNo,
+						CreditCardNo = EncryptionHelper.Encrypt(Input.CreditCardNo),
 						Gender = Input.Gender,
 						MobileNo = Input.MobileNo,
 						DeliveryAddress = Input.DeliveryAddress,
@@ -148,6 +150,7 @@ namespace Fresh_Farm_Market.Pages
 			// If we got this far, something failed, redisplay form
 			return Page();
 		}
+
 
 	}
 }
