@@ -23,14 +23,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/Register">Register</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/UserDetails" asp-route-userId="@User.FindFirstValue(ClaimTypes.NameIdentifier)">User Details</a>
-                    </li>
                     @if (SignInManager.IsSignedIn(User))
                     {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Profile">Profile</a>
+                        </li>
                         <li class="nav-item">
                             <form method="post" asp-page="/Logout" class="form-inline">
                                 <button type="submit" class="btn btn-link nav-link" style="cursor:pointer;">Logout</button>
@@ -39,6 +36,9 @@
                     }
                     else
                     {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Register">Register</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-page="/Login">Login</a>
                         </li>

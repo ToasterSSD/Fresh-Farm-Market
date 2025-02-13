@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -137,6 +138,16 @@ namespace Fresh_Farm_Market.Pages
 
 					if (result.Succeeded)
 					{
+						// Add password to password history
+						var passwordHistory = new PasswordHistory
+						{
+							UserId = user.Id,
+							HashedPassword = hashedPassword,
+							DateSet = DateTime.UtcNow
+						};
+						_dbContext.PasswordHistories.Add(passwordHistory);
+						await _dbContext.SaveChangesAsync();
+
 						// Sign in the user immediately after registration
 						await _signInManager.SignInAsync(user, isPersistent: false);
 

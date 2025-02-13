@@ -14,6 +14,8 @@ public class AuthDbContext : IdentityDbContext<User>
 
 	public DbSet<User> Users { get; set; }
 	public DbSet<UserActivity> UserActivities { get; set; }
+	public DbSet<PasswordHistory> PasswordHistories { get; set; }
+
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{

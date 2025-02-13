@@ -4,15 +4,21 @@
     ViewData["Title"] = "Home Page";
 }
 
-<h1>Welcome, @Model.UserViewModel.FullName</h1>
-<p><strong>Email:</strong> @Model.UserViewModel.Email</p>
-<p><strong>Credit Card Number:</strong> @Model.UserViewModel.CreditCardNo</p>
-<p><strong>Gender:</strong> @Model.UserViewModel.Gender</p>
-<p><strong>Mobile Number:</strong> @Model.UserViewModel.MobileNo</p>
-<p><strong>Delivery Address:</strong> @Model.UserViewModel.DeliveryAddress</p>
-<p><strong>About Me:</strong> @Model.UserViewModel.AboutMe</p>
-@if (!string.IsNullOrEmpty(Model.UserViewModel.Photo))
+@if (Model.UserViewModel != null)
 {
-    <img src="@Model.UserViewModel.Photo" alt="Profile Photo" class="img-thumbnail" style="width: 150px; height: 150px;" />
+    <h1>Welcome, @Model.UserViewModel.FullName</h1>
+    <p><strong>Email:</strong> @Model.UserViewModel.Email</p>
+    <p><strong>Credit Card Number:</strong> @Model.UserViewModel.CreditCardNo</p>
+    <p><strong>Gender:</strong> @Model.UserViewModel.Gender</p>
+    <p><strong>Mobile Number:</strong> @Model.UserViewModel.MobileNo</p>
+    <p><strong>Delivery Address:</strong> @Model.UserViewModel.DeliveryAddress</p>
+    <p><strong>About Me:</strong> @Model.UserViewModel.AboutMe</p>
+    @if (!string.IsNullOrEmpty(Model.UserViewModel.Photo))
+    {
+        <img src="@Model.UserViewModel.Photo" alt="Profile Photo" class="img-thumbnail" style="width: 150px; height: 150px;" />
+    }
 }
-
+else
+{
+    <p>User information is not available.</p>
+}

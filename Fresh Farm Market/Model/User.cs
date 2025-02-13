@@ -20,6 +20,8 @@ namespace Fresh_Farm_Market.Model
 
 		public string? AboutMe { get; set; }
 		public ICollection<UserActivity> UserActivities { get; set; }
+		public ICollection<PasswordHistory> PasswordHistories { get; set; } // Add this line
+
 
 	}
 }
