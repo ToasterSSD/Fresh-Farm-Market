@@ -17,15 +17,16 @@ namespace Fresh_Farm_Market.ViewModels
 		{
 			return new UserViewModel
 			{
-				FullName = user.FullName,
-				CreditCardNo = EncryptionHelper.Decrypt(user.CreditCardNo),
-				Gender = user.Gender,
-				MobileNo = user.MobileNo,
-				DeliveryAddress = user.DeliveryAddress,
-				AboutMe = user.AboutMe,
-				Photo = user.Photo,
-				Email = user.Email // Set Email property
+				FullName = user?.FullName ?? string.Empty,
+				CreditCardNo = user?.CreditCardNo != null ? EncryptionHelper.Decrypt(user.CreditCardNo) : string.Empty,
+				Gender = user?.Gender ?? string.Empty,
+				MobileNo = user?.MobileNo ?? string.Empty,
+				DeliveryAddress = user?.DeliveryAddress ?? string.Empty,
+				AboutMe = user?.AboutMe ?? string.Empty,
+				Photo = user?.Photo ?? string.Empty,
+				Email = user?.Email ?? string.Empty // Set Email property
 			};
 		}
 	}
 }
+

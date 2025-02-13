@@ -1,5 +1,6 @@
 using Fresh_Farm_Market.Model;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +20,16 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.Password.RequireLowercase = true;
 	options.Password.RequireUppercase = true;
 	options.Password.RequireNonAlphanumeric = true;
+
+	// Account lockout settings
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+	options.Lockout.MaxFailedAccessAttempts = 3;
+	options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<AuthDbContext>()
 .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IAuditLogger, AuditLogger>();
 
 var app = builder.Build();
 

@@ -1,20 +1,17 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home Page";
 }
 
-@if (TempData["SuccessMessage"] != null)
+<h1>Welcome, @Model.UserViewModel.FullName</h1>
+<p><strong>Email:</strong> @Model.UserViewModel.Email</p>
+<p><strong>Credit Card Number:</strong> @Model.UserViewModel.CreditCardNo</p>
+<p><strong>Gender:</strong> @Model.UserViewModel.Gender</p>
+<p><strong>Mobile Number:</strong> @Model.UserViewModel.MobileNo</p>
+<p><strong>Delivery Address:</strong> @Model.UserViewModel.DeliveryAddress</p>
+<p><strong>About Me:</strong> @Model.UserViewModel.AboutMe</p>
+@if (!string.IsNullOrEmpty(Model.UserViewModel.Photo))
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+    <img src="@Model.UserViewModel.Photo" alt="Profile Photo" class="img-thumbnail" style="width: 150px; height: 150px;" />
 }
-
-
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>

@@ -1,5 +1,4 @@
-﻿// Fresh_Farm_Market/Model/AuthDbContext.cs
-using Fresh_Farm_Market.Model;
+﻿using Fresh_Farm_Market.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +13,7 @@ public class AuthDbContext : IdentityDbContext<User>
 	}
 
 	public DbSet<User> Users { get; set; }
-	public DbSet<UserActivity> UserActivities { get; set; }  // Add this line
+	public DbSet<UserActivity> UserActivities { get; set; }
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
@@ -23,5 +22,15 @@ public class AuthDbContext : IdentityDbContext<User>
 			string connectionString = _configuration.GetConnectionString("AuthConnectionString");
 			optionsBuilder.UseSqlServer(connectionString);
 		}
+	}
+
+	protected override void OnModelCreating(ModelBuilder builder)
+	{
+		base.OnModelCreating(builder);
+
+		builder.Entity<UserActivity>()
+			.HasOne(ua => ua.User)
+			.WithMany(u => u.UserActivities)
+			.HasForeignKey(ua => ua.UserId);
 	}
 }

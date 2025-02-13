@@ -1,4 +1,9 @@
 ﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using Fresh_Farm_Market.Model
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,6 +29,20 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-page="/UserDetails" asp-route-userId="@User.FindFirstValue(ClaimTypes.NameIdentifier)">User Details</a>
                     </li>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <form method="post" asp-page="/Logout" class="form-inline">
+                                <button type="submit" class="btn btn-link nav-link" style="cursor:pointer;">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Login">Login</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>

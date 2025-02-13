@@ -18,5 +18,7 @@ namespace Fresh_Farm_Market.Model
 		public string? Photo { get; set; }
 
 		public string? AboutMe { get; set; }
+		public ICollection<UserActivity> UserActivities { get; set; }
+
 	}
 }
