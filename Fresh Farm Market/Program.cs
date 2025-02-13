@@ -1,5 +1,7 @@
 using Fresh_Farm_Market.Model;
+using Fresh_Farm_Market.MiddleWare;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +24,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.Password.RequireNonAlphanumeric = true;
 
 	// Account lockout settings
-	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
 	options.Lockout.MaxFailedAccessAttempts = 3;
 	options.Lockout.AllowedForNewUsers = true;
 })
@@ -30,6 +32,15 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IAuditLogger, AuditLogger>();
+
+// Add session services
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+	options.IdleTimeout = TimeSpan.FromMinutes(5); // Set session timeout
+	options.Cookie.HttpOnly = true;
+	options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -42,6 +53,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession(); // Enable session
+app.UseMiddleware<SessionTimeoutMiddleware>(); // Register the middleware
 
 app.UseRouting();
 app.UseAuthentication();
@@ -50,3 +63,4 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+

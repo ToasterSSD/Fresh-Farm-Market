@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,15 +15,18 @@ namespace Fresh_Farm_Market.Pages
 		private readonly UserManager<User> _userManager;
 		private readonly SignInManager<User> _signInManager;
 		private readonly AuthDbContext _dbContext;
+		private readonly PasswordHelper _passwordHelper;
 
 		public RegisterModel(
 			UserManager<User> userManager,
 			SignInManager<User> signInManager,
-			AuthDbContext dbContext)
+			AuthDbContext dbContext,
+			IConfiguration configuration)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_dbContext = dbContext;
+			_passwordHelper = new PasswordHelper(configuration);
 		}
 
 		[BindProperty]
@@ -75,8 +79,6 @@ namespace Fresh_Farm_Market.Pages
 		{
 		}
 
-
-
 		public async Task<IActionResult> OnPostAsync()
 		{
 			try
@@ -122,8 +124,11 @@ namespace Fresh_Farm_Market.Pages
 						user.Photo = $"/uploads/{uniqueFileName}";
 					}
 
-					// Create the user with password
-					var result = await _userManager.CreateAsync(user, Input.Password);
+					// Hash the password with pepper
+					var hashedPassword = _passwordHelper.HashPassword(Input.Password);
+
+					// Create the user with hashed password
+					var result = await _userManager.CreateAsync(user, hashedPassword);
 
 					if (result.Succeeded)
 					{
@@ -150,7 +155,5 @@ namespace Fresh_Farm_Market.Pages
 			// If we got this far, something failed, redisplay form
 			return Page();
 		}
-
-
 	}
 }

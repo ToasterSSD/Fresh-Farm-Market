@@ -21,6 +21,10 @@ public class LogoutModel : PageModel
 		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 		await _signInManager.SignOutAsync();
 		await _auditLogger.LogAsync(userId, "User logged out");
+
+		// Clear session
+		HttpContext.Session.Clear();
+
 		return RedirectToPage("/Login");
 	}
 }

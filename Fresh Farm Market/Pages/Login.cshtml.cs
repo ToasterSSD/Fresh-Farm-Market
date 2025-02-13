@@ -2,6 +2,7 @@ using Fresh_Farm_Market.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -12,12 +13,14 @@ namespace Fresh_Farm_Market.Pages
 		private readonly SignInManager<User> _signInManager;
 		private readonly UserManager<User> _userManager;
 		private readonly IAuditLogger _auditLogger;
+		private readonly PasswordHelper _passwordHelper;
 
-		public LoginModel(SignInManager<User> signInManager, UserManager<User> userManager, IAuditLogger auditLogger)
+		public LoginModel(SignInManager<User> signInManager, UserManager<User> userManager, IAuditLogger auditLogger, IConfiguration configuration)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_auditLogger = auditLogger;
+			_passwordHelper = new PasswordHelper(configuration);
 		}
 
 		[BindProperty]
@@ -45,11 +48,17 @@ namespace Fresh_Farm_Market.Pages
 				var user = await _userManager.FindByEmailAsync(Input.Email);
 				if (user != null)
 				{
-					var result = await _signInManager.PasswordSignInAsync(user, Input.Password, false, lockoutOnFailure: true);
+					var hashedPassword = _passwordHelper.HashPassword(Input.Password);
+					var result = await _signInManager.PasswordSignInAsync(user, hashedPassword, false, lockoutOnFailure: true);
 
 					if (result.Succeeded)
 					{
 						await _auditLogger.LogAsync(user.Id, "User logged in");
+
+						// Create a secure session
+						HttpContext.Session.SetString("UserId", user.Id);
+						HttpContext.Session.SetString("SecurityStamp", user.SecurityStamp);
+
 						return RedirectToPage("/Index");
 					}
 					else if (result.IsLockedOut)
