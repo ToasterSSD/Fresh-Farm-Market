@@ -47,7 +47,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Error");
+	app.UseExceptionHandler("/errorpages/500");
+	app.UseStatusCodePagesWithReExecute("/errorpages/{0}");
 	app.UseHsts();
 }
 else
