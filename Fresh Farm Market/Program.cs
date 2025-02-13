@@ -47,7 +47,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/errorpages/500");
+	app.UseExceptionHandler("/Error");
 	app.UseStatusCodePagesWithReExecute("/errorpages/{0}");
 	app.UseHsts();
 }
@@ -58,8 +58,8 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseSession(); 
-app.UseMiddleware<SessionTimeoutMiddleware>();
+app.UseSession(); // Enable session
+app.UseMiddleware<SessionTimeoutMiddleware>(); // Register the middleware
 
 app.UseRouting();
 app.UseAuthentication();
