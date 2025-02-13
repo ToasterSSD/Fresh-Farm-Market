@@ -3,6 +3,7 @@ using Fresh_Farm_Market.MiddleWare;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Fresh_Farm_Market.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +25,8 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.Password.RequireNonAlphanumeric = true;
 
 	// Account lockout settings
-	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-	options.Lockout.MaxFailedAccessAttempts = 3;
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Set lockout time to 2 minutes
+	options.Lockout.MaxFailedAccessAttempts = 3; // Set max failed access attempts
 	options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<AuthDbContext>()
@@ -64,6 +65,8 @@ app.UseMiddleware<SessionTimeoutMiddleware>(); // Register the middleware
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStatusCodePagesWithRedirects("/errors/{0}");
 
 app.MapRazorPages();
 
