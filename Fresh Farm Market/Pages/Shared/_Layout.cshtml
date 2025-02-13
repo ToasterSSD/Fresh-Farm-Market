@@ -21,7 +21,9 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-page="/Register">Register</a>
                     </li>
-                    <li><a asp-page="/UserDetails" asp-route-userId="@User.FindFirstValue(ClaimTypes.NameIdentifier)">User Details</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-page="/UserDetails" asp-route-userId="@User.FindFirstValue(ClaimTypes.NameIdentifier)">User Details</a>
+                    </li>
                 </ul>
             </div>
         </nav>
