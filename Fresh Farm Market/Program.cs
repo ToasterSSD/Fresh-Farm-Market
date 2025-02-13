@@ -14,10 +14,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<AuthDbContext>();
 builder.Services.AddDataProtection(); // Add Data Protection
 
-
 builder.Services.AddScoped<DataProtectionService>();
-builder.Services.AddScoped<PasswordHelper>();
-
+builder.Services.AddScoped<PasswordHelper>(); // Register PasswordHelper
 
 // Updated Identity configuration
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -25,7 +23,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.SignIn.RequireConfirmedAccount = true;
 	options.User.RequireUniqueEmail = true;  // Enable unique email requirement
 
-	// Optional: Add additional password requirements
+	// Password settings
 	options.Password.RequireDigit = true;
 	options.Password.RequiredLength = 12;
 	options.Password.RequireLowercase = true;
@@ -68,7 +66,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession(); // Enable session
-app.UseMiddleware<SessionTimeoutMiddleware>(); 
+app.UseMiddleware<SessionTimeoutMiddleware>();
 
 app.UseRouting();
 app.UseAuthentication();
