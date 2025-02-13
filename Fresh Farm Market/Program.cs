@@ -48,7 +48,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Error");
-	app.UseStatusCodePagesWithReExecute("/errorpages/{0}");
+	app.UseStatusCodePagesWithReExecute("/errors/{0}");
 	app.UseHsts();
 }
 else

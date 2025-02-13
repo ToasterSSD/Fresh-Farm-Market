@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Fresh_Farm_Market.errorpages
+namespace Fresh_Farm_Market.Pages.errors
 {
-	public class Error404Model : PageModel
+	public class custom403Model : PageModel
 	{
 		public void OnGet()
 		{
