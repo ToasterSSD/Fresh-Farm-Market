@@ -14,18 +14,15 @@ namespace Fresh_Farm_Market.Pages
 		private readonly UserManager<User> _userManager;
 		private readonly SignInManager<User> _signInManager;
 		private readonly AuthDbContext _dbContext;
-		private readonly PasswordHelper _passwordHelper;
 
 		public ChangePasswordModel(
 			UserManager<User> userManager,
 			SignInManager<User> signInManager,
-			AuthDbContext dbContext,
-			PasswordHelper passwordHelper)
+			AuthDbContext dbContext)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_dbContext = dbContext;
-			_passwordHelper = passwordHelper;
 		}
 
 		[BindProperty]
@@ -66,20 +63,6 @@ namespace Fresh_Farm_Market.Pages
 				return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
 			}
 
-			// Check password history
-			var hashedNewPassword = _passwordHelper.HashPassword(Input.NewPassword);
-			var passwordHistory = _dbContext.PasswordHistories
-				.Where(ph => ph.UserId == user.Id)
-				.OrderByDescending(ph => ph.DateSet)
-				.Take(2)
-				.ToList();
-
-			if (passwordHistory.Any(ph => ph.HashedPassword == hashedNewPassword))
-			{
-				ModelState.AddModelError(string.Empty, "You cannot reuse your last 2 passwords.");
-				return Page();
-			}
-
 			var changePasswordResult = await _userManager.ChangePasswordAsync(user, Input.CurrentPassword, Input.NewPassword);
 			if (!changePasswordResult.Succeeded)
 			{
@@ -94,13 +77,15 @@ namespace Fresh_Farm_Market.Pages
 			var newPasswordHistory = new PasswordHistory
 			{
 				UserId = user.Id,
-				HashedPassword = hashedNewPassword,
+				HashedPassword = user.PasswordHash,
 				DateSet = DateTime.UtcNow
 			};
 			_dbContext.PasswordHistories.Add(newPasswordHistory);
 			await _dbContext.SaveChangesAsync();
 
 			await _signInManager.RefreshSignInAsync(user);
+
+			// Redirect to the index page after successful password change
 			return RedirectToPage("/Index");
 		}
 	}

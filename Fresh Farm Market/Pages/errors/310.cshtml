@@ -1,0 +1,33 @@
+﻿@page
+@model Fresh_Farm_Market.Pages.errors.custom310Model
+@{
+    ViewData["Title"] = "Too Many Redirects";
+}
+
+<div class="error-container">
+    <h1>Too Many Redirects</h1>
+    <p>Sorry, the page you are trying to access has too many redirects.</p>
+    <a class="btn btn-primary" asp-page="/Index">Go to Home Page</a>
+</div>
+
+<style>
+    .error-container {
+        text-align: center;
+        margin-top: 50px;
+    }
+
+        .error-container h1 {
+            font-size: 3rem;
+            color: #dc3545;
+        }
+
+        .error-container p {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+        }
+
+        .error-container .btn {
+            font-size: 1.1rem;
+            padding: 10px 20px;
+        }
+</style>

@@ -16,6 +16,7 @@ builder.Services.AddDataProtection(); // Add Data Protection
 
 
 builder.Services.AddScoped<DataProtectionService>();
+builder.Services.AddScoped<PasswordHelper>();
 
 
 // Updated Identity configuration
@@ -32,7 +33,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.Password.RequireNonAlphanumeric = true;
 
 	// Account lockout settings
-	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1); // Set lockout time to 2 minutes
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Set lockout time to 2 minutes
 	options.Lockout.MaxFailedAccessAttempts = 3; // Set max failed access attempts
 	options.Lockout.AllowedForNewUsers = true;
 })
