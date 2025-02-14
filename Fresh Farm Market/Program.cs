@@ -44,6 +44,9 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Set lockout time to 2 minutes
 	options.Lockout.MaxFailedAccessAttempts = 3; // Set max failed access attempts
 	options.Lockout.AllowedForNewUsers = true;
+
+	options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+	options.SignIn.RequireConfirmedEmail = true;
 })
 .AddEntityFrameworkStores<AuthDbContext>()
 .AddDefaultTokenProviders();

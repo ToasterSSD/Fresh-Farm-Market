@@ -45,8 +45,10 @@ namespace Fresh_Farm_Market.Pages
 			ReCaptchaSiteKey = _configuration["ReCaptcha:SiteKey"];
 		}
 
-		public async Task<IActionResult> OnPostAsync()
+		public async Task<IActionResult> OnPostAsync(string returnUrl = null)
 		{
+			returnUrl = returnUrl ?? Url.Content("~/");
+
 			if (ModelState.IsValid)
 			{
 				var user = await _userManager.FindByEmailAsync(Input.Email);
@@ -63,7 +65,11 @@ namespace Fresh_Farm_Market.Pages
 						HttpContext.Session.SetString("UserId", user.Id);
 						HttpContext.Session.SetString("SecurityStamp", user.SecurityStamp);
 
-						return RedirectToPage("/Index");
+						return LocalRedirect(returnUrl);
+					}
+					else if (result.RequiresTwoFactor)
+					{
+						return RedirectToPage("./Account/LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = false });
 					}
 					else if (result.IsLockedOut)
 					{
